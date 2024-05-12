@@ -1,0 +1,106 @@
+@import './colors';
+
+// reset 
+
+@font-face {
+  font-family: 'Flexo regular';
+  src: url('../font/Flexo-Regular.ttf');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Flexo regular';
+}
+
+//Generics
+
+body {
+    background-image: url(../images/body_bg.png);
+    background-color: white;
+    font-family: 'Roboto Flex Variable', sans-serif;
+    
+    
+}
+
+ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+//utils
+
+.bgGrass {
+    background: linear-gradient(to right, darken($Grass, 19%), $Grass);
+}
+
+.bgPoison {
+    background: linear-gradient(to right, darken($Poison, 19%), $Poison);
+}
+
+.bgFire {
+    background: linear-gradient(to right, darken($Fire, 19%), $Fire);
+}
+
+.bgFlying {
+    background: linear-gradient(to right, darken($Flying, 19%), $Flying);
+}
+
+.bgWater {
+    background: linear-gradient(to right, darken($Water, 19%), $Water);
+}
+
+.bgNormal {
+    background: linear-gradient(to right, darken($Normal, 19%), $Normal);
+}
+
+.bgElectric {
+    background: linear-gradient(to right, darken($Electric, 19%), $Electric);
+}
+
+.bgGround {
+    background: linear-gradient(to right, darken($Ground, 19%), $Ground);
+}
+
+.bgBug {
+    background: linear-gradient(to right, darken($Bug, 19%), $Bug);
+}
+
+.bgFairy {
+    background: linear-gradient(to right, darken($Fairy, 19%), $Fairy);
+}
+
+.bgFighting {
+    background: linear-gradient(to right, darken($Fighting, 19%), $Fighting);
+}
+
+.bgPsychic {
+    background: linear-gradient(to right, darken($Psychic, 19%), $Psychic);
+}
+
+.bgSteel {
+    background: linear-gradient(to right, darken($Steel, 19%), $Steel);
+}
+
+.bgIce {
+    background: linear-gradient(to right, darken($Ice, 19%), $Ice);
+}
+
+.bgGhost {
+    background: linear-gradient(to right, darken($Ghost, 19%), $Ghost);
+}
+
+.bgDragon {
+    background: linear-gradient(to right, darken($Dragon, 19%), $Dragon);
+}
+
+.bgDark {
+    background: linear-gradient(to right, darken($Dark, 19%), $Dark);
+}
+
+.bgRock {
+    background: linear-gradient(to right, darken($Rock, 19%), $Rock);
+}
+
+
