@@ -6,7 +6,8 @@ import axios from 'axios';
     name: 'AdvancedResearch',
     data() {
         return {
-            store
+            store,
+            isAdvancedResearchOpen: false
         }
     },
     components: {SelectType},
@@ -16,12 +17,16 @@ import axios from 'axios';
                 // console.log(res.data.results)
 
                 store.pokemonAbilities = res.data.results.map(ability => {
+                    ability.name = ability.name.charAt(0).toUpperCase() + ability.name.slice(1)
                     return (ability.name).split('-').join(' ')
                 })
 
                 store.pokemonAbilities = store.pokemonAbilities.sort()
             })
 
+        },
+        openAdvancedResearch() {
+            this.isAdvancedResearchOpen = !this.isAdvancedResearchOpen;
         }
     },
     created() {
@@ -32,7 +37,7 @@ import axios from 'axios';
 
 <template>
     <div class="advanced-container">
-        <div class="hidden-research">
+        <div class="hidden-research" v-show="isAdvancedResearchOpen">
             <div class="cm-col">
                 <section>
                     <div class="d-flex align-items-center gap-5">
@@ -79,7 +84,7 @@ import axios from 'axios';
                         <div class="d-flex align-items-center gap-3">
                             <input type="text" class="number-range-input" value="1">
                             <span> - </span>
-                            <input type="text" class="number-range-input" value="1048">
+                            <input type="text" class="number-range-input" value="1025">
                         </div>
                     </div>
                 </section>
@@ -91,28 +96,59 @@ import axios from 'axios';
                 </section>
                 <section>
                     <h3>Height</h3>
+                    <div class="d-flex gap-3">
+
+                        <div class="heights-container">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/595.png"
+                                alt="" class="dark-img">
+                        </div>
+                        <div class="heights-container">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/148.png"
+                                alt="" class="dark-img">
+                        </div>
+                        <div class="heights-container">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png"
+                                alt="" class="dark-img">
+                        </div>
+                    </div>
                 </section>
                 <section>
                     <h3>Weight</h3>
+                    <div class="d-flex gap-3">
+
+                        <div class="heights-container">
+                            <img src="../assets/images/weights.png" class="weight-img" />
+                        </div>
+                        <div class="heights-container">
+                            <img src="../assets/images/weights2.png" class="weight-img" />
+                        </div>
+                        <div class="heights-container">
+                            <img src="../assets/images/weights3.png" class="weight-img" />
+                        </div>
+                    </div>
                 </section>
                 <div class="button-container">
-                    <button>Reset</button>
-                    <button>search</button>
+                    <button class="advanced-research-btn secondary-color">Reset</button>
+                    <button class="advanced-research-btn primary-color"><i
+                            class="fa-solid fa-magnifying-glass me-2"></i>Search</button>
                 </div>
             </div>
         </div>
 
-        <span class="grey-board">Advanced research<span class="white-circle"></span></span>
+        <span class="grey-board" @click="openAdvancedResearch">Advanced research<span class="white-circle">
+                <i class="fa-solid " :class="`fa-angle-${isAdvancedResearchOpen ? 'up' : 'down'}`"> </i>
+
+            </span></span>
     </div>
 </template>
 
 <style lang='scss' scoped>
  .advanced-container {
      background-color: #616161;
-     padding: .5rem 0;
+     padding: 2rem 0;
     //  height: 80px;
     //  da sistemare qui 
-     height: 650px;
+    //  height: 650px;
      color: white;
      position: relative;
      margin-bottom: 2rem;
@@ -130,6 +166,7 @@ import axios from 'axios';
     display: flex;
     align-items: start;
     justify-content: center;
+    cursor: pointer;
 
     
  }
@@ -153,6 +190,7 @@ import axios from 'axios';
     width: 30px;
     height: 30px;
     transform: rotate(180deg);
+    
  }
 
  .white-circle {
@@ -161,6 +199,10 @@ import axios from 'axios';
     background-color: white;
     border-radius: 50%;
     margin-left: 10px;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
  }
 
 
@@ -189,7 +231,7 @@ import axios from 'axios';
     margin: 2rem 0;
 
     h3 {
-        margin: 2rem 0;
+        margin: 1rem 0;
     }
  }
 
@@ -236,5 +278,60 @@ import axios from 'axios';
     color: black;
     font-weight: bold;
     cursor: pointer;
+ }
+
+ .heights-container {
+    width: 90px;
+    height: 80px;
+    background-color: white;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+ }
+
+ .dark-img {
+    filter: brightness(0%);
+    width: 70px;
+ }
+
+ .weight-img {
+    width: 40px;
+ }
+
+ .button-container {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 10px;
+    margin-right: 3rem;
+    padding-top: 2rem;
+ }
+
+ .advanced-research-btn {
+    padding: 10px 40px;
+    border: 0;
+    border-radius: 5px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    transition: .2s ease;
+
+    &.secondary-color{
+        background-color: #a4a4a4;
+
+        &:hover {
+            background-color: #8b8b8b;
+        }
+    }
+
+    &.primary-color{
+        background-color: #ee6b2f;
+
+        &:hover {
+            background-color: #da471b;
+        }
+    }
  }
 </style>

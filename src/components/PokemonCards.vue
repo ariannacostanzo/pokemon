@@ -11,8 +11,11 @@
         }
     },
     methods: {
-        makeTypeNameUpper(name) {
+        makeNameUpper(name) {
             return name.charAt(0).toUpperCase() + name.slice(1);
+        },
+        makeNameSeparate(name) {
+            return name.split('-').join(' ')
         }
     },
     created() {
@@ -22,32 +25,19 @@
 </script>
 
 <template>
-
-    <!-- <div v-for="(pokemon, i) in store.pokemons" :key="pokemon.id" class="pokemon-card">
-        <figure class="pokemon-img-container">
-            <img :src="pokemon.imageUrl" :alt="pokemon.name" class="pokemon-img">
-        </figure>
-        <div class="pokemon-info">
-            <p class="pokemon-number">N ° {{i+1}}</p>
-            <h3 class="pokemon-name">{{ pokemon.name }}</h3>
-            <span class="pokemon-type" :class="`bg${pokemon.type1}`">{{pokemon.type1}}</span>
-            <span v-if="pokemon.type2" class="pokemon-type" :class="`bg${pokemon.type2}`">{{pokemon.type2}}</span>
-        </div>
-        
-    </div> -->
     <div v-for="(pokemon, i) in store.pokemons" :key="i" class="pokemon-card">
         <figure class="pokemon-img-container">
-            <img :src="pokemon.sprites.versions['generation-v']['black-white'].animated.front_default"
+            <img :src="pokemon.sprites.versions['generation-v']['black-white'].animated.front_default || pokemon.sprites.versions['generation-v']['black-white'].front_default || pokemon.sprites.front_default"
                 :alt="pokemon.name" class="pokemon-img">
         </figure>
         <div class="pokemon-info">
             <p class="pokemon-number">N ° {{pokemon.id}}</p>
-            <h3 class="pokemon-name">{{ pokemon.name }}</h3>
-            <span class="pokemon-type" :class="`bg${makeTypeNameUpper(pokemon.types[0].type.name)}`">{{
+            <h3 class="pokemon-name">{{ makeNameSeparate(pokemon.name) }}</h3>
+            <span class="pokemon-type" :class="`bg${makeNameUpper(pokemon.types[0].type.name)}`">{{
                 pokemon.types[0].type.name
                 }}</span>
             <span v-if="pokemon.types[1]" class="pokemon-type"
-                :class="`bg${makeTypeNameUpper(pokemon.types[1].type.name) }`">{{
+                :class="`bg${makeNameUpper(pokemon.types[1].type.name) }`">{{
                 pokemon.types[1].type.name
                 || '' }}</span>
         </div>
@@ -68,8 +58,10 @@
     transition: .2s ease;
 
     &:hover {
-        translate: 0 -10px;
+        // translate: 0 -10px;
+        animation: jumpAnimation .2s;
     }
+
 
     .pokemon-img-container {
         width: 236.63px;
@@ -87,6 +79,7 @@
         border-radius: 10px;
         object-fit: contain;
         object-position: center;
+        
 
        
     }
@@ -121,5 +114,19 @@
 
     
 
+  }
+
+  @keyframes jumpAnimation {
+    0% {
+        transform: translateY(0);
+    }
+    
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
   }
 </style>

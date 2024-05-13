@@ -6,6 +6,7 @@
     data() {
         return {
             store,
+            orders: ['Descending order', 'Alphabetic A-Z', 'Alphabetic Z-A']
         }
     },
     components: {
@@ -21,12 +22,7 @@
     <div>
         <h1>Pokédex</h1>
         <div class="select-container">
-            <!-- <label> First Type:</label>
-            <SelectType :options="store.pokemonTypes" :default-label="'All'"
-                @option-selected="$emit('type-selected', $event)" :type="'firstType'" />
-            <label> Second Type:</label>
-            <SelectType :options="store.pokemonTypes" :default-label="'All'"
-                @option-selected="$emit('type-selected', $event)" :type="'secondType'" /> -->
+                <SelectType :options="orders" :default-label="'Ascending order'" @option-selected="$emit('type-selected', $event)"/>
         </div>
     </div>
 </template>
