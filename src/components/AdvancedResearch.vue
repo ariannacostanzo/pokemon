@@ -7,7 +7,14 @@ import axios from 'axios';
     data() {
         return {
             store,
-            isAdvancedResearchOpen: false
+            isAdvancedResearchOpen: false,
+            filterPokemonType: [],
+            filterPokemonWeakness: [],
+            minNumericRange: 1,
+            maxNumericRange: 1025,
+            abilityName: null,
+            filterHeight: [],
+            filterWeight: []
         }
     },
     components: {SelectType},
@@ -27,6 +34,91 @@ import axios from 'axios';
         },
         openAdvancedResearch() {
             this.isAdvancedResearchOpen = !this.isAdvancedResearchOpen;
+        },
+        fetchAllFilters() {
+            console.log('Type: ' + this.filterPokemonType, '; Weakness: ' + this.filterPokemonWeakness)
+        },
+        setFilter(filter, array, event, className) {
+            if(array.includes(filter)) {
+                const index = array.indexOf(filter);
+                if(index !== -1) {
+                    array.splice(index, 1);
+                }
+                event.currentTarget.remove(className)
+            } else {
+                array.push(filter)
+                event.target.classList.add(className)
+            }
+        },
+        setFilterType(type, event) {
+            if (this.filterPokemonType.includes(type)) {
+                const index = this.filterPokemonType.indexOf(type);
+                if (index !== -1) {
+                    this.filterPokemonType.splice(index, 1);
+                }
+                event.target.classList.remove('active-filter-type');
+            } else {
+                this.filterPokemonType.push(type)
+                event.target.classList.add('active-filter-type')
+            }
+        },
+        setFilterWeakness(weakness, event) {
+            if(this.filterPokemonWeakness.includes(weakness)) {
+                const index = this.filterPokemonWeakness.indexOf(weakness);
+                if (index !== -1) {
+                    this.filterPokemonWeakness.splice(index, 1)
+                }
+                event.target.classList.remove('active-filter-type');
+            } else {
+                this.filterPokemonWeakness.push(weakness)
+                event.target.classList.add('active-filter-type')
+            }
+        },
+        setHeight(height, event) {
+            if (this.filterHeight.includes(height)) {
+                const index = this.filterHeight.indexOf(height);
+                if (index !== -1) {
+                    this.filterHeight.splice(index, 1)
+                }
+                event.currentTarget.classList.remove('active-filter-height');
+            } else {
+                this.filterHeight.push(height)
+                event.currentTarget.classList.add('active-filter-height')
+            }
+            
+        },
+        setWeight(weight, event) {
+            if (this.filterWeight.includes(weight)) {
+                const index = this.filterWeight.indexOf(weight);
+                if (index !== -1) {
+                    this.filterWeight.splice(index, 1)
+                }
+                event.currentTarget.classList.remove('active-filter-height');
+            } else {
+                this.filterWeight.push(weight)
+                event.currentTarget.classList.add('active-filter-height')
+            }
+            
+        },
+        getAbility(ability) {
+            this.abilityName = ability
+            console.log(this.abilityName)
+        },
+        reset() {
+            const types = document.querySelectorAll('.abbreviation-filter')
+            types.forEach(type => {
+                type.classList.remove('active-filter-type')
+            })
+            const heights = document.querySelectorAll('.heights-container') 
+            heights.forEach(height => {
+                height.classList.remove('active-filter-height')
+            })
+            const images = document.querySelectorAll('.dark-img') 
+            images.forEach(img => {img.classList.remove('invert')})
+            this.filterPokemonType = [];
+            this.filterPokemonWeakness = [];
+            this.filterHeight = []
+            this.filterWeight = []
         }
     },
     created() {
@@ -59,8 +151,10 @@ import axios from 'axios';
                                         :key="i">
                                         <span class="pokemon-type-filter" :class="'bg' + pokemonType">{{ pokemonType
                                             }}</span>
-                                        <span class="abbreviation-filter">T</span>
-                                        <span class="abbreviation-filter">W</span>
+                                        <span class="abbreviation-filter"
+                                            @click="setFilterType(pokemonType, $event)">T</span>
+                                        <span class="abbreviation-filter"
+                                            @click="setFilterWeakness(pokemonType, $event)">W</span>
                                     </li>
                                 </ul>
                             </div>
@@ -70,8 +164,10 @@ import axios from 'axios';
                                         :key="i + 9">
                                         <span class="pokemon-type-filter" :class="'bg' + pokemonType">{{ pokemonType
                                             }}</span>
-                                        <span class="abbreviation-filter">T</span>
-                                        <span class="abbreviation-filter">W</span>
+                                        <span class="abbreviation-filter"
+                                            @click="setFilterType(pokemonType, $event)">T</span>
+                                        <span class="abbreviation-filter"
+                                            @click="setFilterWeakness(pokemonType, $event)">W</span>
                                     </li>
                                 </ul>
                             </div>
@@ -82,9 +178,9 @@ import axios from 'axios';
                     <div class="d-flex align-items-center gap-5">
                         <h3>Numeric range</h3>
                         <div class="d-flex align-items-center gap-3">
-                            <input type="text" class="number-range-input" value="1">
+                            <input type="text" class="number-range-input" v-model="minNumericRange">
                             <span> - </span>
-                            <input type="text" class="number-range-input" value="1025">
+                            <input type="text" class="number-range-input" v-model="maxNumericRange">
                         </div>
                     </div>
                 </section>
@@ -92,23 +188,24 @@ import axios from 'axios';
             <div class="cm-col">
                 <section>
                     <h3>Ability</h3>
-                    <SelectType :default-label="'Any'" :options="store.pokemonAbilities" />
+                    <SelectType :default-label="'Any'" :options="store.pokemonAbilities"
+                        @option-selected="getAbility" />
                 </section>
                 <section>
                     <h3>Height</h3>
                     <div class="d-flex gap-3">
 
-                        <div class="heights-container">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/595.png"
-                                alt="" class="dark-img">
+                        <div class="heights-container" @click="setHeight(1, $event)">
+                            <img src="../assets/images/height1.png" alt="" class="dark-img height-img"
+                                :class="filterHeight.includes(1) ? 'invert' : ''">
                         </div>
-                        <div class="heights-container">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/148.png"
-                                alt="" class="dark-img">
+                        <div class="heights-container" @click="setHeight(2, $event)">
+                            <img src="../assets/images/height2.png" alt="" class="dark-img height-img"
+                                :class="filterHeight.includes(2) ? 'invert' : ''">
                         </div>
-                        <div class="heights-container">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/384.png"
-                                alt="" class="dark-img">
+                        <div class="heights-container" @click="setHeight(3, $event)">
+                            <img src="../assets/images/height3.png" alt="" class="dark-img height-img"
+                                :class="filterHeight.includes(3) ? 'invert' : ''">
                         </div>
                     </div>
                 </section>
@@ -116,20 +213,23 @@ import axios from 'axios';
                     <h3>Weight</h3>
                     <div class="d-flex gap-3">
 
-                        <div class="heights-container">
-                            <img src="../assets/images/weights.png" class="weight-img" />
+                        <div class="heights-container" @click="setWeight(1, $event)">
+                            <img src="../assets/images/weights.png" class="dark-img weight-img"
+                                :class="filterWeight.includes(1) ? 'invert' : ''" />
                         </div>
-                        <div class="heights-container">
-                            <img src="../assets/images/weights2.png" class="weight-img" />
+                        <div class="heights-container" @click="setWeight(2, $event)">
+                            <img src="../assets/images/weights2.png" class="dark-img weight-img"
+                                :class="filterWeight.includes(2) ? 'invert' : ''" />
                         </div>
-                        <div class="heights-container">
-                            <img src="../assets/images/weights3.png" class="weight-img" />
+                        <div class="heights-container" @click="setWeight(3, $event)">
+                            <img src="../assets/images/weights3.png" class="dark-img weight-img"
+                                :class="filterWeight.includes(3) ? 'invert' : ''" />
                         </div>
                     </div>
                 </section>
                 <div class="button-container">
-                    <button class="advanced-research-btn secondary-color">Reset</button>
-                    <button class="advanced-research-btn primary-color"><i
+                    <button @click="reset" class="advanced-research-btn secondary-color">Reset</button>
+                    <button @click="fetchAllFilters" class="advanced-research-btn primary-color"><i
                             class="fa-solid fa-magnifying-glass me-2"></i>Search</button>
                 </div>
             </div>
@@ -291,9 +391,12 @@ import axios from 'axios';
     cursor: pointer;
  }
 
- .dark-img {
-    filter: brightness(0%);
+ .height-img {
     width: 70px;
+ }
+
+ .invert {
+    filter: invert(100%);
  }
 
  .weight-img {
@@ -333,5 +436,13 @@ import axios from 'axios';
             background-color: #da471b;
         }
     }
+ }
+
+ .active-filter-type {
+    background-color: #30a7d7;
+ }
+ .active-filter-height{
+    background-color: #ee6b2f;
+    
  }
 </style>
