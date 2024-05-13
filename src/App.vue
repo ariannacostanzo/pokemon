@@ -26,7 +26,7 @@
     },
     methods: {
       //altra api, pokeApi, più complessa ma meglio per i filtri
-      fetchPokemon(endpoint) {
+      fetchPokemon(endpoint, container) {
         store.isLoading = true;
 
         axios.get(endpoint).then(res => {
@@ -51,7 +51,7 @@
           .then(pokemonDetail => {
             store.totalCount = res.data.count;
             store.pagination = res.data.next;
-            store.pokemons = pokemonDetail.map((detail, index) => {
+            const updatedPokemons = pokemonDetail.map((detail, index) => {
                 return {
                     id: detail.id,
                     name: detail.name,
@@ -66,17 +66,13 @@
             });
 
             if(this.orderType === 'descending') {
-              const reversed = store.pokemons.reverse();
-              store.pokemons = reversed
+              updatedPokemons.reverse();
+              
             }
-            // console.log(store.pokemons)
-            // store.pokemons.forEach(pokemon => {
-            //   // console.log(pokemon.types)
-            //   // console.log((pokemon.types[0].type.name).charAt(0).toUpperCase() + pokemon.types[0].type.name.slice(1))
-            // })
 
-            
-            
+            //update l'array originale
+            container.length = 0;
+            container.push(...updatedPokemons)
         }).catch(err => { }).then(() => {
                 setTimeout(() => {
                   store.isLoading = false
@@ -84,73 +80,27 @@
               })
         })
       },
-      fetchAllPokemons() {
-
-      },
       filterPokemon(option) {
         if(option === 'Ascending order') {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20');
+          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20', store.pokemons);
           this.orderType = 'ascending'
         } else if( option === 'Descending order') {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=1005&limit=20')
+          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=1005&limit=20', store.pokemons)
           this.orderType = 'descending',
           this.currentPage = 1005
         } else if (option === 'Alphabetic A-Z') {
           //prendo tutti i pokemon per ordinarli per nome
-          axios.get('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005').then(res => {
-            store.isLoading = true;
-
-            const promises = res.data.results.map(pokemon => {
-              return axios.get(pokemon.url).then(r => {
-                return {
-                  id: r.data.id,
-                  name: r.data.name,
-                  abilities: r.data.abilities,
-                  height: r.data.height,
-                  weight: r.data.weight,
-                  moves: r.data.moves,
-                  sprites: r.data.sprites,
-                  types: r.data.types
-                }
-              });
-            });
-            Promise.all(promises)
-            .then(pokemonDetail => {
-              store.totalCount = res.data.count;
-              store.pagination = res.data.next;
-              store.allPokemons = pokemonDetail.map((detail, index) => {
-                return {
-                  id: detail.id,
-                  name: detail.name,
-                  url: res.data.results[index].url,
-                  abilities: detail.abilities,
-                  height: detail.height,
-                  weight: detail.weight,
-                  moves: detail.moves,
-                  sprites: detail.sprites,
-                  types: detail.types
-                };
-              })
-
-              store.allPokemons.sort((a, b) => a.name.localeCompare(b.name));
-              console.log(store.allPokemons)
-              store.pokemons = store.allPokemons.slice(0, 20);
-            }).catch().then(()=> {
-              setTimeout(() => {
-                  store.isLoading = false
-                }, 500)
-            })
-            // this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005')
-
-            
-            
-          }).catch().then(()=> {
-            setTimeout(() => {
-              store.isLoading = false
-            }, 500)
-          })
+            this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005', store.allPokemons)
+            store.allPokemons.sort((a, b) => a.name.localeCompare(b.name));
+            // console.log(store.allPokemons)
+            store.pokemons = store.allPokemons.slice(0, 20);
+        } else {
+          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005', store.allPokemons)
+          store.allPokemons.sort((a, b) => b.name.localeCompare(a.name));
+          // console.log(store.allPokemons)
+          store.pokemons = store.allPokemons.slice(0, 20);
         }
-        },
+      },
         //ottengo dall'api i tipi di pokemon
         fetchTypes() {
           axios.get(basePokemonTypes).then(res => {
@@ -247,7 +197,7 @@
     created() {
 
       this.currentEndpoint = `${baseEndpoint}${this.perPage}`
-      this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20')
+      this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20', store.pokemons)
       this.fetchTypes()
       
     },
