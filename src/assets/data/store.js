@@ -7,5 +7,6 @@ export const store = reactive({
     pokemonTypes: [],
     pokemonAbilities: [],
     totalCount: 0,
+    allPokemons: []
     
 })

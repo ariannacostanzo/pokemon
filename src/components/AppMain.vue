@@ -15,13 +15,13 @@ import {store} from '../assets/data/store.js'
     components: {
       PokemonCards, LoadingButton, LoadingBall, MainHeader, AdvancedResearch
     },
-    emits: ['type-selected', 'load-button-clicked']
+    emits: ['type-selected', 'load-button-clicked', 'filterFields']
   }
 </script>
 
 <template>
   <main>
-    <AdvancedResearch/>
+    <AdvancedResearch @filterFields="$emit('filterFields', $event)" />
     <div class="pokemon-container">
       <MainHeader @type-selected="$emit('type-selected', $event)" />
 
@@ -42,8 +42,7 @@ import {store} from '../assets/data/store.js'
 
 
 
-      <LoadingButton v-if="!store.isLoading && store.pagination"
-        @load-button-clicked="$emit('load-button-clicked')" />
+      <LoadingButton v-if="!store.isLoading && store.pagination" @load-button-clicked="$emit('load-button-clicked')" />
     </div>
 
   </main>

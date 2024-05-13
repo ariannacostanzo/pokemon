@@ -17,6 +17,7 @@ import axios from 'axios';
             filterWeight: []
         }
     },
+    emits: ['filterFields'],
     components: {SelectType},
     methods: {
         fetchAbilities() {
@@ -36,7 +37,12 @@ import axios from 'axios';
             this.isAdvancedResearchOpen = !this.isAdvancedResearchOpen;
         },
         fetchAllFilters() {
-            console.log('Type: ' + this.filterPokemonType, '; Weakness: ' + this.filterPokemonWeakness)
+            console.log('Type: ' + this.filterPokemonType)
+            console.log('Weakness: ' + this.filterPokemonWeakness)
+            console.log('Numeric range: ' + this.minNumericRange + ' - ' + this.maxNumericRange)
+            console.log('Ability: ' + this.abilityName)
+            console.log('Heights: ' + this.filterHeight)
+            console.log('Weights: ' + this.filterWeight)
         },
         setFilter(filter, array, event, className) {
             if(array.includes(filter)) {
@@ -102,7 +108,6 @@ import axios from 'axios';
         },
         getAbility(ability) {
             this.abilityName = ability
-            console.log(this.abilityName)
         },
         reset() {
             const types = document.querySelectorAll('.abbreviation-filter')
@@ -229,7 +234,9 @@ import axios from 'axios';
                 </section>
                 <div class="button-container">
                     <button @click="reset" class="advanced-research-btn secondary-color">Reset</button>
-                    <button @click="fetchAllFilters" class="advanced-research-btn primary-color"><i
+                    <button
+                        @click="$emit('filterFields', { filterPokemonType, filterPokemonWeakness, minNumericRange, maxNumericRange, abilityName, filterHeight, filterWeight })"
+                        class="advanced-research-btn primary-color"><i
                             class="fa-solid fa-magnifying-glass me-2"></i>Search</button>
                 </div>
             </div>

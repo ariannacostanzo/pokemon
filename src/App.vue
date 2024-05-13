@@ -55,7 +55,7 @@
                 return {
                     id: detail.id,
                     name: detail.name,
-                    url: res.data.results[index].url, // Assuming order is maintained
+                    url: res.data.results[index].url, 
                     abilities: detail.abilities,
                     height: detail.height,
                     weight: detail.weight,
@@ -70,10 +70,10 @@
               store.pokemons = reversed
             }
             // console.log(store.pokemons)
-            store.pokemons.forEach(pokemon => {
-              // console.log(pokemon.types)
-              // console.log((pokemon.types[0].type.name).charAt(0).toUpperCase() + pokemon.types[0].type.name.slice(1))
-            })
+            // store.pokemons.forEach(pokemon => {
+            //   // console.log(pokemon.types)
+            //   // console.log((pokemon.types[0].type.name).charAt(0).toUpperCase() + pokemon.types[0].type.name.slice(1))
+            // })
 
             
             
@@ -84,6 +84,9 @@
               })
         })
       },
+      fetchAllPokemons() {
+
+      },
       filterPokemon(option) {
         if(option === 'Ascending order') {
           this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20');
@@ -92,6 +95,60 @@
           this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=1005&limit=20')
           this.orderType = 'descending',
           this.currentPage = 1005
+        } else if (option === 'Alphabetic A-Z') {
+          //prendo tutti i pokemon per ordinarli per nome
+          axios.get('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005').then(res => {
+            store.isLoading = true;
+
+            const promises = res.data.results.map(pokemon => {
+              return axios.get(pokemon.url).then(r => {
+                return {
+                  id: r.data.id,
+                  name: r.data.name,
+                  abilities: r.data.abilities,
+                  height: r.data.height,
+                  weight: r.data.weight,
+                  moves: r.data.moves,
+                  sprites: r.data.sprites,
+                  types: r.data.types
+                }
+              });
+            });
+            Promise.all(promises)
+            .then(pokemonDetail => {
+              store.totalCount = res.data.count;
+              store.pagination = res.data.next;
+              store.allPokemons = pokemonDetail.map((detail, index) => {
+                return {
+                  id: detail.id,
+                  name: detail.name,
+                  url: res.data.results[index].url,
+                  abilities: detail.abilities,
+                  height: detail.height,
+                  weight: detail.weight,
+                  moves: detail.moves,
+                  sprites: detail.sprites,
+                  types: detail.types
+                };
+              })
+
+              store.allPokemons.sort((a, b) => a.name.localeCompare(b.name));
+              console.log(store.allPokemons)
+              store.pokemons = store.allPokemons.slice(0, 20);
+            }).catch().then(()=> {
+              setTimeout(() => {
+                  store.isLoading = false
+                }, 500)
+            })
+            // this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005')
+
+            
+            
+          }).catch().then(()=> {
+            setTimeout(() => {
+              store.isLoading = false
+            }, 500)
+          })
         }
         },
         //ottengo dall'api i tipi di pokemon
@@ -105,6 +162,20 @@
             }, 500)
           })
 
+        },
+        fetchFilterData(data) {
+          // console.log(data)
+          const types = data.filterPokemonType;
+          const weaknesses = data.filterPokemonWeakness;
+          const minNumericRange = data.minNumericRange;
+          const maxNumericRange = data.maxNumericRange;
+          const abilityName = data.abilityName;
+          const heights = data.filterHeight;
+          const weights = data.filterWeight;
+          console.log(types, weaknesses, minNumericRange, maxNumericRange, abilityName, heights, weights)
+          //recupero tutti i pokemon
+          //filtro per ogni filtro
+          //rendo store.pokemon il risultato mostrandone solo 20
         },
 
         //quando clicco aggiungo tot pokemon in più
@@ -186,7 +257,7 @@
 
 <template>
   <div class="body">
-    <AppMain @type-selected="filterPokemon" @load-button-clicked="loadMorePokemon"/>
+    <AppMain @type-selected="filterPokemon" @load-button-clicked="loadMorePokemon" @filterFields="fetchFilterData" />
     <span id="anchor"></span>
   </div>
 </template>
