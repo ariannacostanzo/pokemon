@@ -28,7 +28,7 @@
       //altra api, pokeApi, più complessa ma meglio per i filtri
       fetchPokemon(endpoint, container) {
         store.isLoading = true;
-
+        container.length = 0;
         axios.get(endpoint).then(res => {
           
           const promises = res.data.results.map(pokemon => {
@@ -43,7 +43,7 @@
                 weight: r.data.weight,
                 moves: r.data.moves,
                 sprites: r.data.sprites,
-                types: r.data.types
+                types: r.data.types,
               };
             });
           });
@@ -67,12 +67,18 @@
 
             if(this.orderType === 'descending') {
               updatedPokemons.reverse();
-              
-            }
+            }else if(this.orderType === 'alphabetic up') {
+              updatedPokemons.sort((a, b) => a.name.localeCompare(b.name));
+            } else if(this.orderType === 'alphabetic down') {
+              updatedPokemons.sort((a, b) => b.name.localeCompare(a.name));
+            } 
+            
 
             //update l'array originale
-            container.length = 0;
+            
             container.push(...updatedPokemons)
+            store.pokemons = store.allPokemons.slice(0, 20);
+
         }).catch(err => { }).then(() => {
                 setTimeout(() => {
                   store.isLoading = false
@@ -82,23 +88,19 @@
       },
       filterPokemon(option) {
         if(option === 'Ascending order') {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20', store.pokemons);
+          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons);
           this.orderType = 'ascending'
         } else if( option === 'Descending order') {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=1005&limit=20', store.pokemons)
+          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
           this.orderType = 'descending',
           this.currentPage = 1005
         } else if (option === 'Alphabetic A-Z') {
-          //prendo tutti i pokemon per ordinarli per nome
-            this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005', store.allPokemons)
-            store.allPokemons.sort((a, b) => a.name.localeCompare(b.name));
-            // console.log(store.allPokemons)
-            store.pokemons = store.allPokemons.slice(0, 20);
+          this.orderType = 'alphabetic up'
+            this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
+            
         } else {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005', store.allPokemons)
-          store.allPokemons.sort((a, b) => b.name.localeCompare(a.name));
-          // console.log(store.allPokemons)
-          store.pokemons = store.allPokemons.slice(0, 20);
+          this.orderType = 'alphabetic down'
+          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
         }
       },
         //ottengo dall'api i tipi di pokemon
@@ -197,7 +199,8 @@
     created() {
 
       this.currentEndpoint = `${baseEndpoint}${this.perPage}`
-      this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20', store.pokemons)
+      this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005', store.allPokemons)
+      
       this.fetchTypes()
       
     },
@@ -216,3 +219,5 @@
 @import './assets/style/style.scss';
  
 </style>
+
+<!-- bisogna cambiare tutti i container con store.allPokemons e poi lavorare su quelli  -->
