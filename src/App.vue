@@ -14,7 +14,7 @@
     data() {
       return {
         perPage: 20,
-        currentPage: 0,
+        currentPage: 20,
         currentEndpoint: null,
         firstType: '',
         secondType: '',
@@ -90,17 +90,19 @@
         if(option === 'Ascending order') {
           this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons);
           this.orderType = 'ascending'
+          this.currentPage = 20
         } else if( option === 'Descending order') {
           this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
-          this.orderType = 'descending',
-          this.currentPage = 1005
+          this.orderType = 'descending'
+          this.currentPage = 20
         } else if (option === 'Alphabetic A-Z') {
           this.orderType = 'alphabetic up'
             this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
-            
+          this.currentPage = 20
         } else {
           this.orderType = 'alphabetic down'
           this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
+          this.currentPage = 20
         }
       },
         //ottengo dall'api i tipi di pokemon
@@ -132,68 +134,17 @@
 
         //quando clicco aggiungo tot pokemon in più
         loadMorePokemon() {
-          if(this.orderType === 'ascending') {
-            this.currentPage = this.currentPage + 20
-          } else if (this.orderType === 'descending') {
-            this.currentPage = this.currentPage - 20
-          }
-          const newEndpoint = `https://pokeapi.co/api/v2/pokemon/?offset=${this.currentPage}&limit=20`
-          
-          axios.get(newEndpoint).then(res => {
+          setTimeout(() => {
+            // Perform the action
             store.isLoading = true;
-            let pokemonData = res.data.results
-            if (this.orderType === 'descending') {
-              pokemonData = pokemonData.reverse()
-            }
-            const promises = pokemonData.map(pokemon => {
 
-              return axios.get(pokemon.url).then(r => {
-                // console.log(r.data)
-                return {
-                  id: r.data.id,
-                  name: r.data.name,
-                  abilities: r.data.abilities,
-                  height: r.data.height,
-                  weight: r.data.weight,
-                  moves: r.data.moves,
-                  sprites: r.data.sprites,
-                  types: r.data.types
-                };
-              });
-            });
-            Promise.all(promises).then(pokemonDetail => {
-              if(this.orderType === 'ascending') {
-                store.pagination = res.data.next;
-              } else {
-                store.pagination = res.data.previous
-              }
-              store.pokemons.push(...pokemonDetail.map((detail, index) => ({
-                id: detail.id,
-                name: detail.name,
-                url: res.data.results[index].url, // Assuming order is maintained
-                abilities: detail.abilities,
-                height: detail.height,
-                weight: detail.weight,
-                moves: detail.moves,
-                sprites: detail.sprites,
-                types: detail.types
-              })));
-            })
-            store.pagination = res.data
-            newPokemon.forEach(pokemon => {
-              store.pokemons.push(pokemon)
-            })
-            
-            
-          }).catch(err => { }).then(() => {
-            store.pokemons.forEach(pokemon => {
-              // console.log(pokemon.types)
-              // console.log(pokemon.sprites.versions.front_default)
-            })
+            // Stop the action after another second
             setTimeout(() => {
-              store.isLoading = false
-            }, 500)
-          })
+              store.isLoading = false;
+            }, 500);
+          }, 0);
+          this.currentPage = this.currentPage + this.perPage
+          store.pokemons = store.allPokemons.slice(0, this.currentPage);
         },
     },
     created() {

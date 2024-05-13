@@ -23,6 +23,7 @@
     top: 0;
     bottom: 0;
     background-color: rgba($color: #000000, $alpha: .8);
+    z-index: 99;
 
     .loading-ball {
       width: 100px;
