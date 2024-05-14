@@ -1,7 +1,7 @@
 <script>
   import AppMain from './components/AppMain.vue';
   import MainHeader from './components/MainHeader.vue';
-  let baseEndpoint = `https://41tyokboji.execute-api.eu-central-1.amazonaws.com/dev/api/v1/pokemons?per=`
+  let baseEndpoint = `https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025`
   const basePokemonTypes = 'https://41tyokboji.execute-api.eu-central-1.amazonaws.com/dev/api/v1/pokemons/types1'
   import axios from 'axios';
   import {store} from './assets/data/store.js'
@@ -18,7 +18,6 @@
         currentEndpoint: null,
         firstType: '',
         secondType: '',
-        initialEndpoint: baseEndpoint,
         orderType: 'ascending'
       }
     },
@@ -26,7 +25,7 @@
     },
     methods: {
       //altra api, pokeApi, più complessa ma meglio per i filtri
-      fetchPokemon(endpoint, container) {
+      fetchPokemon( endpoint, container, filterData) {
         store.isLoading = true;
         container.length = 0;
         axios.get(endpoint).then(res => {
@@ -64,20 +63,49 @@
                     types: detail.types
                 };
             });
-
+            const filteredPokemons = []
+            //gestire gli ordini
             if(this.orderType === 'descending') {
               updatedPokemons.reverse();
             }else if(this.orderType === 'alphabetic up') {
               updatedPokemons.sort((a, b) => a.name.localeCompare(b.name));
             } else if(this.orderType === 'alphabetic down') {
               updatedPokemons.sort((a, b) => b.name.localeCompare(a.name));
-            } 
+            } else if(this.orderType === 'advancedFilter') { //gestire i filtri
+              //se ho dei tipi nei filtri
+              
+              if (filterData.filterPokemonType && filterData.filterPokemonType.length > 0) {
+                if(filterData.filterPokemonType.length > 2) {
+                  console.log('da sistemare, sono più di due')
+                  return
+                }
+                updatedPokemons.forEach(pokemon => {
+                  const lowercaseFilter = filterData.filterPokemonType[0].toLowerCase();
+                  const secondLowerCaseFilter = filterData.filterPokemonType[1]?.toLowerCase()
+                  const firstPokemonTypeName = pokemon.types[0]?.type.name?.toLowerCase();
+                  const secondPokemonTypeName = pokemon.types[1]?.type.name?.toLowerCase();
+                  const matchFirstType = lowercaseFilter === firstPokemonTypeName;
+                  const matchSecondType = lowercaseFilter === secondPokemonTypeName;
+                  if (matchFirstType || matchSecondType){
+                    filteredPokemons.push(pokemon)
+                  }
+                })
+                console.log(updatedPokemons)
+              } else {
+                console.log('non c\'è type')
+              }
+              
+            }
+            console.log(filteredPokemons)
             
-
             //update l'array originale
-            
-            container.push(...updatedPokemons)
+            if (this.orderType === 'advancedFilter') {
+              container.push(...filteredPokemons)
+            } else {
+              container.push(...updatedPokemons)
+            }
             store.pokemons = store.allPokemons.slice(0, 20);
+            
 
         }).catch(err => { }).then(() => {
                 setTimeout(() => {
@@ -88,22 +116,22 @@
       },
       filterPokemon(option) {
         if(option === 'Ascending order') {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons);
+          this.fetchPokemon(baseEndpoint, store.allPokemons);
           this.orderType = 'ascending'
           this.currentPage = 20
         } else if( option === 'Descending order') {
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
+          this.fetchPokemon(baseEndpoint, store.allPokemons)
           this.orderType = 'descending'
           this.currentPage = 20
         } else if (option === 'Alphabetic A-Z') {
           this.orderType = 'alphabetic up'
-            this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
+            this.fetchPokemon(baseEndpoint, store.allPokemons)
           this.currentPage = 20
-        } else {
+        } else if (option === 'Alphabetic Z-A') {
           this.orderType = 'alphabetic down'
-          this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
+          this.fetchPokemon(baseEndpoint, store.allPokemons)
           this.currentPage = 20
-        }
+        } 
       },
         //ottengo dall'api i tipi di pokemon
         fetchTypes() {
@@ -119,17 +147,18 @@
         },
         fetchFilterData(data) {
           // console.log(data)
-          const types = data.filterPokemonType;
-          const weaknesses = data.filterPokemonWeakness;
-          const minNumericRange = data.minNumericRange;
-          const maxNumericRange = data.maxNumericRange;
-          const abilityName = data.abilityName;
-          const heights = data.filterHeight;
-          const weights = data.filterWeight;
-          console.log(types, weaknesses, minNumericRange, maxNumericRange, abilityName, heights, weights)
-          //recupero tutti i pokemon
-          //filtro per ogni filtro
-          //rendo store.pokemon il risultato mostrandone solo 20
+          this.orderType = 'advancedFilter'
+          // const types = data.filterPokemonType;
+          // const weaknesses = data.filterPokemonWeakness;
+          // const minNumericRange = data.minNumericRange;
+          // const maxNumericRange = data.maxNumericRange;
+          // const abilityName = data.abilityName;
+          // const heights = data.filterHeight;
+          // const weights = data.filterWeight;
+          // console.log(types, weaknesses, minNumericRange, maxNumericRange, abilityName, heights, weights)
+
+          this.fetchPokemon(baseEndpoint, store.allPokemons, data)
+          this.currentPage = 20
         },
 
         //quando clicco aggiungo tot pokemon in più
@@ -141,7 +170,7 @@
             // Stop the action after another second
             setTimeout(() => {
               store.isLoading = false;
-            }, 500);
+            }, 300);
           }, 0);
           this.currentPage = this.currentPage + this.perPage
           store.pokemons = store.allPokemons.slice(0, this.currentPage);
@@ -150,7 +179,7 @@
     created() {
 
       this.currentEndpoint = `${baseEndpoint}${this.perPage}`
-      this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1005', store.allPokemons)
+      this.fetchPokemon('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1025', store.allPokemons)
       
       this.fetchTypes()
       
