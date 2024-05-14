@@ -34,15 +34,15 @@ import {store} from '../assets/data/store.js'
       <div v-if="store.pokemons.length > 0" class="pokemon-cards-container">
         <PokemonCards />
       </div>
-      <div v-if="!store.isLoading && store.pokemons.length <= 0">
-        <h1>
-          There are no pokemons with these types
-        </h1>
+      <div v-if="!store.isLoading && store.allPokemons.length <= 0">
+        <h3>
+          There are no pokemons with these filter. Remember that pokemon can only have 2 types.
+        </h3>
       </div>
 
 
 
-      <LoadingButton v-if="!store.isLoading && store.pagination" @load-button-clicked="$emit('load-button-clicked')" />
+      <LoadingButton v-if="!store.isLoading && store.allPokemons.length > 0" @load-button-clicked="$emit('load-button-clicked')" />
     </div>
 
   </main>
